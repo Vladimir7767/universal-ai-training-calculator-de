@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Professioneller KI-Trainingskosten & Fine-Tuning Rechner online</title>
+<meta name="description" content="Kostenloser technischer Simulator für das Feineinstellen von neuronalen Netzen. Berechnen Sie Kosten für LoRA, QLoRA, Cloud-GPU-Miete (H100) und ROI.">
+<style>
+:root{--primary:#4f46e5;--primary-hover:#4338ca;--success:#16a34a;--danger:#dc2626;--bg:#f8fafc;--card-bg:#ffffff;--text:#0f172a;--text-muted:#64748b;--border:#e2e8f0;--accent:#ea580c;--purple:#7c3aed;--indigo:#6366f1}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{background:var(--bg);color:var(--text);padding:20px;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.wrapper{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:530px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.05)}
+h1{font-size:21px;font-weight:700;margin-bottom:4px;text-align:center;letter-spacing:-0.025em}
+.subtitle{font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:20px}
+.live-meter{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:20px;text-align:center}
+.meter-label{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;letter-spacing:0.05em}
+.bar-container{background:var(--border);border-radius:20px;height:12px;width:100%;overflow:hidden;position:relative}
+.bar-fill{background:var(--primary);width:30%;height:100%;transition:all 0.4s ease}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--bg);padding:4px;border-radius:10px;margin-bottom:20px;border:1px solid var(--border)}
+.tab-btn{padding:10px 2px;background:none;border:none;border-radius:8px;font-size:11px;font-weight:700;color:var(--text-muted);cursor:pointer;transition:all 0.2s;text-align:center}
+.tab-btn.active{background:var(--card-bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.group{margin-bottom:16px}
+.radio-group{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.radio-label{border:1px solid var(--border);padding:10px 4px;border-radius:8px;text-align:center;font-size:12px;font-weight:700;color:var(--text-muted);cursor:pointer;transition:all 0.2s}
+.radio-group input[type="radio"]{display:none}
+.radio-group input[type="radio"]:checked + .radio-label{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 4px rgba(79,70,229,0.15)}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)}
+select,input[type="number"]{width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:15px;background:#fff;color:var(--text);transition:border 0.2s}
+select:focus,input:focus{border-color:var(--primary);outline:none}
+input[type="range"]{width:100%;margin:8px 0;cursor:pointer}
+.range-val{font-size:14px;font-weight:700;color:var(--primary);float:right}
+.calc-btn{width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;box-shadow:0 4px 6px -1px rgba(79,70,229,0.2);transition:background 0.2s}
+.calc-btn:hover{background:var(--primary-hover)}
+.skynet-box{background:#fee2e2;border:1px solid #fca5a5;border-radius:12px;padding:14px;margin-top:20px;display:none}
+.skynet-title{font-size:12px;font-weight:700;color:var(--danger);margin-bottom:6px;text-transform:uppercase;text-align:center;letter-spacing:0.05em}
+.results{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:20px;display:none}
+.res-title{font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-align:center;text-transform:uppercase;letter-spacing:0.05em}
+.res-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;border-bottom:1px dashed var(--border);align-items:center}
+.res-row:last-child{border-bottom:none}
+.res-val{font-weight:700;color:var(--primary);text-align:right;max-width:65%}
+.res-val.loss{color:var(--danger)}
+.ad{display:none;margin-top:15px;min-height:90px;text-align:center;justify-content:center;align-items:center;width:100%}
+.partner-btn{display:block;width:100%;padding:11px;background:#fff;border:1px solid var(--purple);color:var(--purple);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;text-align:center;margin-top:12px;text-decoration:none}
+.partner-btn:hover{background:var(--purple);color:#fff}
+.seo-text{font-size:12px;color:var(--text-muted);margin-top:24px;text-align:justify;line-height:1.4;border-top:1px solid var(--border);padding-top:16px;display:none}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<h1>KI-Trainingssimulator</h1>
+<div class="subtitle">Professionelles Rechen-Audit für LLM-Feineinstellung & GPU-Cluster</div>
+
+<div class="live-meter">
+<div class="meter-label">Rechenmatrix-Status: <span id="live-preview-zone">Initialisierung</span></div>
+<div class="bar-container"><div class="bar-fill" id="bar-fill"></div></div>
+</div>
+
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('dataset', this)">Daten & Strategie</button>
+<button class="tab-btn" onclick="switchTab('compute', this)">GPU-Cluster</button>
+<button class="tab-btn" onclick="switchTab('roi', this)">Business ROI</button>
+</div>
+<!-- REITER 1: DATEN & STRATEGIE -->
+<div id="tab-dataset" class="tab-content active">
+<div class="group">
+<label>Trainingsmethodik (Architektur)</label>
+<div class="radio-group">
+<input type="radio" id="strategy-full" name="strategy" value="full" checked onchange="updatePreview()">
+<label for="strategy-full" class="radio-label">Full Tuning</label>
+<input type="radio" id="strategy-lora" name="strategy" value="lora" onchange="updatePreview()">
+<label for="strategy-lora" class="radio-label">LoRA (16-bit)</label>
+<input type="radio" id="strategy-qlora" name="strategy" value="qlora" onchange="updatePreview()">
+<label for="strategy-qlora" class="radio-label">QLoRA (4-bit)</label>
+</div>
+</div>
+<div class="group">
+<label for="dataset-size">Schnittstellen-Datensatzgröße (GB) <span class="range-val" id="dataset-val">10</span></label>
+<input type="range" id="dataset-size" min="1" max="1000" value="10" oninput="document.getElementById('dataset-val').innerText=this.value; updatePreview();">
+</div>
+<div class="group">
+<label for="data-noise">Datenrauschen & Filtertiefe (%) <span class="range-val" id="noise-val">20%</span></label>
+<input type="range" id="data-noise" min="0" max="80" value="20" step="5" oninput="document.getElementById('noise-val').innerText=this.value+'%'; updatePreview();">
+</div>
+<div class="group">
+<label for="epochs">Trainings-Epochen <span class="range-val" id="epochs-val">3</span></label>
+<input type="range" id="epochs" min="1" max="50" value="3" oninput="document.getElementById('epochs-val').innerText=this.value; updatePreview();">
+</div>
+</div>
+
+<!-- REITER 2: GPU-CLUSTER -->
+<div id="tab-compute" class="tab-content">
+<div class="group">
+<label for="gpu-type">Rechenchip (GPU-Knoten)</label>
+<select id="gpu-type" onchange="updatePreview()">
+<option value="h100">NVIDIA H100 SXM (Elite-Cloud)</option>
+<option value="a100">NVIDIA A100 (Industriestandard)</option>
+<option value="rtx4090">NVIDIA RTX 4090 (Consumer-Knoten)</option>
+</select>
+</div>
+<div class="group">
+<label for="gpu-count">Cluster-Größe (Anzahl der GPUs) <span class="range-val" id="gpu-count-val">8</span></label>
+<input type="range" id="gpu-count" min="1" max="64" value="8" oninput="document.getElementById('gpu-count-val').innerText=this.value; updatePreview();">
+</div>
+<div class="group">
+<label for="infra-type">Infrastruktur-Anbieter</label>
+<select id="infra-type" onchange="updatePreview()">
+<option value="bare-metal">Bare-Metal-Rechenleistung (Vast.ai / RunPod)</option>
+<option value="cloud-api">Verwaltete Enterprise-API (OpenAI Fine-Tuning)</option>
+</select>
+</div>
+</div>
+
+<!-- REITER 3: BUSINESS ROI -->
+<div id="tab-roi" class="tab-content">
+<div class="group">
+<label for="engineer-salary">Monatsgehalt für Data Scientist / Ingenieur (€)</label>
+<input type="number" id="engineer-salary" value="6500" min="1" max="250000" oninput="updatePreview()">
+</div>
+<div class="group">
+<label for="legacy-spend">Monatliche Kosten für rohe APIs ohne Feineinstellung (€)</label>
+<input type="number" id="legacy-spend" value="4000" min="1" max="250000" oninput="updatePreview()">
+</div>
+</div>
+
+<button class="calc-btn" onclick="calculateAiMetrics()">Rechen-Audit durchführen</button>
+
+<div class="results" id="results-box">
+<div class="res-title">Integriertes technisches Finanzbuch</div>
+<div class="res-row"><span>Größe des bereinigten Datensatzes:</span><span class="res-val" id="res-clean-data">0 GB</span></div>
+<div class="res-row"><span>Effektive Rechenleistung (NVLink-Steuer):</span><span class="res-val" id="res-nvlink">100%</span></div>
+<div class="res-row"><span>Gesamte Rechenkosten (Trainings-Overhead):</span><span class="res-val" id="res-infra">0 €</span></div>
+<div class="res-row" id="payback-row" style="display:none;"><span>Amortisationszeitraum der Infrastruktur:</span><span class="res-val" id="res-payback" style="color:var(--purple)">0</span></div>
+<div class="res-row"><span>Netto-Budgeteinsparungen (Jährlich):</span><span class="res-val" id="res-savings" style="color:var(--success)">0 €</span></div>
+<div class="res-row"><span>KI-Architektur Return on Investment (ROI):</span><span class="res-val" id="res-roi">0%</span></div>
+<a href="https://runpod.io" target="_blank" class="partner-btn" id="partner-link">🤖 Cluster-Instanz auf RunPod bereitstellen</a>
+</div>
+
+<div class="skynet-box" id="skynet-container">
+<div class="skynet-title">🔮 Überanpassungs-Matrix & Skynet-Index</div>
+<div class="res-row" style="border-bottom:none; color:#991b1b; font-size:12px; text-align:justify;"><span id="skynet-verdict">Führen Sie das Rechen-Audit aus, um die Stabilität der neuronalen Netzarchitektur zu bewerten.</span></div>
+</div>
+
+<div id="ads" class="ad"><div id="container-e8c895e6c70ade8e4ef4a72354f42e97"></div></div>
+
+<div class="seo-text" id="seo-box">
+Unser professioneller Online-KI-Trainingskostenrechner für die Feineinstellung bietet granulare Analysen für die Optimierung benutzerdefinierter Sprachmodelle. Die Rechen-Engine bewertet die physischen Dimensionen des Datensatzes zusammen mit den Verlustkoeffizienten der Datenfilterung. Zentrale Subroutinen verarbeiten die Speicherkompressionsgewichte von LoRA und QLoRA (4-Bit-Quantisierung) und berechnen die verteilten Parallelisierungskosten, die durch Hardware-Interconnect-Grenzen verursacht werden (NVLink-Skalierung auf bis  zu 64 dedizierte GPU-Knoten, einschließlich NVIDIA H100-, A100- und RTX 4090-Konfigurationen). Vergleichen Sie rohe Bare-Metal-Hosting-Architekturen auf RunPod- und Vast.ai-Instanzen mit verwalteten API-Ebenen von Institutionen, um strukturelle Kennzahlen zum Return on Investment (ROI) abzubilden und gleichzeitig Überanpassungsschwellen zu minimieren. Jede Berechnung kompiliert zu 100 % lokal im Browser.
+</div>
+</div>
+<script>
+let currentTab = 'dataset';
+
+// Aktuelle Datenbank für GPU-Mietkosten (USD pro Chip/Stunde, Stand Ende 2026)
+const gpuPricesUSD = {
+  h100: { bareMetal: 2.20, cloudApi: 4.50 },
+  a100: { bareMetal: 1.10, cloudApi: 2.80 },
+  rtx4090: { bareMetal: 0.40, cloudApi: 0.90 }
+};
+
+// Rechenleistungswerte in TFLOPS (Für Multi-GPU Interconnect-Berechnungen)
+const gpuTflops = { h100: 67, a100: 19, rtx4090: 83 };
+
+const eurToUSD = 1.11;
+
+function switchTab(tabName, btn) {
+  currentTab = tabName;
+  const buttons = document.querySelectorAll('.tab-btn');
+  buttons.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const contents = document.querySelectorAll('.tab-content');
+  contents.forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tabName).classList.add('active');
+  updatePreview();
+}
+
+function calculateAllAiMetrics() {
+  // 1. Daten- und Strategiearchitektur
+  const strategy = document.querySelector('input[name="strategy"]:checked').value;
+  const datasetSize = parseFloat(document.getElementById('dataset-size').value);
+  const dataNoise = parseFloat(document.getElementById('data-noise').value);
+  const epochs = parseFloat(document.getElementById('epochs').value);
+
+  const cleanDatasetSize = datasetSize * (1 - dataNoise / 100);
+
+  // 2. GPU-Cluster-Parameter
+  const gpuType = document.getElementById('gpu-type').value;
+  const gpuCount = parseInt(document.getElementById('gpu-count').value);
+  const infraType = document.getElementById('infra-type').value;
+
+  // NVLink / InfiniBand Multi-GPU-Verlustmatrix für Verteilungs-Effizienz
+  let nvlinkEfficiency = 1.00;
+  if (gpuCount > 1 && gpuCount <= 8) nvlinkEfficiency = 0.92;
+  else if (gpuCount > 8 && gpuCount <= 32) nvlinkEfficiency = 0.85;
+  else if (gpuCount > 32) nvlinkEfficiency = 0.76;
+
+  const pricePerHourUSD = infraType === 'bare-metal' ? gpuPricesUSD[gpuType].bareMetal : gpuPricesUSD[gpuType].cloudApi;
+
+  // Kompressionsfaktor (LoRA / QLoRA Speicheroptimierung)
+  let strategyModifier = 1.00;
+  if (strategy === 'lora') strategyModifier = 0.25;
+  else if (strategy === 'qlora') strategyModifier = 0.12;
+
+  // Algorithmische Schätzung des Trainingsfensters basierend auf Hardware-TFLOPS
+  const baseComputeUnits = (cleanDatasetSize * epochs * 4) * strategyModifier;
+  const effectiveClusterTflops = gpuTflops[gpuType] * gpuCount * nvlinkEfficiency;
+  const trainingHours = Math.max(1, Math.ceil((baseComputeUnits * 1000) / effectiveClusterTflops));
+
+  const totalComputeCostUSD = trainingHours * pricePerHourUSD * gpuCount;
+  const totalComputeCostEUR = totalComputeCostUSD / eurToUSD;
+
+  // 3. Wirtschaftlichkeit und ROI-Leitfaden
+  const engineerSalary = parseFloat(document.getElementById('engineer-salary').value) || 0;
+  const legacySpendMonth = parseFloat(document.getElementById('legacy-spend').value) || 0;
+
+  const totalProjectCostEUR = totalComputeCostEUR + engineerSalary;
+  const legacySpendYear = legacySpendMonth * 12;
+
+  const netSavingsYear = legacySpendYear - totalProjectCostEUR;
+  const roiValue = totalProjectCostEUR > 0 ? (netSavingsYear / totalProjectCostEUR) * 100 : 0;
+
+  return {
+    cleanData: cleanDatasetSize.toFixed(1) + " GB",
+    nvlink: Math.round(nvlinkEfficiency * 100) + "%",
+    infra: Math.round(totalComputeCostEUR).toLocaleString('de-DE'),
+    savings: Math.round(netSavingsYear).toLocaleString('de-DE'),
+    roi: Math.round(roiValue),
+    epochs: epochs,
+    strategy: strategy,
+    totalCostEUR: totalProjectCostEUR
+  };
+}
+
+function updatePreview() {
+  const data = calculateAllAiMetrics();
+  if (!data) return;
+
+  let zone = "Enterprise Feineinstellung";
+  let color = "var(--primary)";
+  let pct = 65;
+
+  if (data.roi < 5 || data.epochs > 15) {
+    zone = "Überanpassungs-Risiko (Finanzblase)";
+    color = "var(--danger)";
+    pct = 15;
+  } else if (data.strategy === 'qlora') {
+    zone = "Maximale Optimierung (4-bit)";
+    color = "var(--purple)";
+    pct = 95;
+  } else if (data.totalCostEUR > (5000 / eurToUSD)) {
+    zone = "Kritische Clusterlast-Warnung";
+    color = "var(--accent)";
+    pct = 45;
+  }
+
+  const preview = document.getElementById('live-preview-zone');
+  preview.innerText = zone; 
+  preview.style.color = color;
+
+  const fill = document.getElementById('bar-fill');
+  fill.style.width = pct + '%'; 
+  fill.style.background = color;
+
+  // Dynamische Anpassung des Partner-Links (Vast vs RunPod natives Routing)
+  const pLink = document.getElementById('partner-link');
+  if (pLink) {
+    const gpuType = document.getElementById('gpu-type').value;
+    if (gpuType === 'rtx4090') {
+      pLink.innerText = "🤖 RTX 4090-Knoten auf Vast.ai bereitstellen";
+      pLink.href = "https://vast.ai";
+    } else {
+      pLink.innerText = "🤖 H100-Cluster auf RunPod hochfahren";
+      pLink.href = "https://runpod.io";
+    }
+  }
+}
+
+window.onload = function() {
+  updatePreview();
+};
+
+function showAds() {
+  const c = document.getElementById('ads');
+  if (!window.adScriptLoaded) {
+    window.atOptions = {
+      'key': 'e8c895e6c70ade8e4ef4a72354f42e97',
+      'format': 'iframe',
+      'height': 90,
+      'width': 728,
+      'params': {}
+    };
+    var s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.async = !0;
+    s.src = ['https://', 'bagelstoppage.', 'com/', 'e8c895e6c70ade8e4ef4a72354f42e97/', 'invoke.js'].join('');
+    c.appendChild(s);
+    window.adScriptLoaded = !0;
+  }
+  c.style.display = 'flex';
+}
+
+function calculateAiMetrics() {
+  const data = calculateAllAiMetrics();
+  if (!data) return;
+
+  document.getElementById('res-clean-data').innerText = data.cleanData;
+  document.getElementById('res-nvlink').innerText = data.nvlink;
+  document.getElementById('res-infra').innerText = data.infra + " €";
+  document.getElementById('res-savings').innerText = data.savings + " €";
+  document.getElementById('res-roi').innerText = (data.roi > 0 ? "+" : "") + data.roi + "%";
+
+  let verdict = `Die Cluster-Ausrichtung ist stabil. Die Optimierung des Gradientenverfahrens über das ${data.strategy.toUpperCase()}-Framework wurde verifiziert. Die Interconnect-Ebene hält sichere Bandbreitenparameter ein.`;
+  const rawSavings = parseInt(data.savings.replace(/\./g, ''));
+  
+  if (data.epochs > 15) {
+    verdict = `🚨 FINANZIELLES SCHWARZES LOCH (OVERFITTING): Rechenlaufzeit auf ${data.epochs} Epochen erhöht! Das Modell wird sich den Datensatz strikt einprägen, was die Leistung in realen Produktionsumgebungen zerstört. Sie werfen im Wesentlichen Risikokapital direkt ab an Cloud-Anbieter.`;
+  } else if (data.strategy === 'qlora') {
+    verdict = `🏴‍☠️ TECH-SOUVERÄNITÄTSMODUS (4-BIT): Die QLoRA-Konfiguration hat die Speicheranforderungen um 88% gesenkt. Industrielle Feineinstellungsworkflows werden erfolgreich über Consumer-RTX 4090-Konfigurationen ausgeführt, wodurch institutionelle Gatekeeper komplett umgangen werden.`;
+  } else if (rawSavings < 0) {
+    verdict = `⚠️ STRUKTURELLER INFRASTRUKTURVERLUST: Die internen Datentechnik-Gehälter in Kombination mit den dedizierten GPU-Mietkosten übersteigen die Brutto-API-Ausgaben. Es bleibt mathematisch sinnvoll, zu den standardmäßigen Foundation-Ebenen zurückzukehren.`;
+  }
+
+  document.getElementById('skynet-verdict').innerText = verdict;
+  document.getElementById('results-box').style.display = 'block';
+  document.getElementById('skynet-container').style.display = 'block';
+  updatePreview();
+  showAds();
+}
+</script>
+</body>
+</html>
